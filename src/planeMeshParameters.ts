@@ -1,9 +1,9 @@
 const planeMeshParameters = [
     {
         rotation: {
-            x: -Math.PI / 2,
+            x: -Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 0,
             y: 40,
@@ -12,9 +12,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            x: Math.PI / 2,
+            x: Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 0,
             y: -40,
@@ -23,9 +23,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            y: Math.PI / 2,
+            y: Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 40,
             y: 0,
@@ -34,9 +34,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            y: -Math.PI / 2,
+            y: -Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: -40,
             y: 0,
@@ -45,9 +45,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            x: -Math.PI / 2,
+            x: -Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 0,
             y: 40,
@@ -56,9 +56,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            x: Math.PI / 2,
+            x: Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 0,
             y: -40,
@@ -67,9 +67,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            y: Math.PI / 2,
+            y: Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: 40,
             y: 0,
@@ -78,9 +78,9 @@ const planeMeshParameters = [
     },
     {
         rotation: {
-            y: -Math.PI / 2,
+            y: -Math.PI / 3,
         },
-        scale: 2,
+        scale: 3,
         position: {
             x: -40,
             y: 0,

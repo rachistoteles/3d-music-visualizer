@@ -1,8 +1,109 @@
 import * as THREE from "three";
 import shaders from "./shaders";
-import planeMeshParameters from "./planeMeshParameters";
 
 
+type PlaneMeshParameters = {
+    rotation: { x?: number , y?: number, z?: number },
+    scale: number,
+    position: { x: number, y: number, z: number }
+};
+
+const planeMeshParameters: PlaneMeshParameters[] = [
+    {
+        rotation: {
+            x: -Math.PI / 3,
+        },
+        scale: 3,
+        position: {
+            x: 0,
+            y: 40,
+            z: 10
+        }
+    },
+    // ... other objects as previously defined
+    {
+        rotation: {
+            x: Math.PI / 3,
+        },
+        scale: 3,
+        position: {
+            x: 0,
+            y: -40,
+            z: 10
+        }
+    },
+    {
+        rotation: {
+            y: Math.PI / 3,
+            x: 0
+        },
+        scale: 3,
+        position: {
+            x: 40,
+            y: 0,
+            z: 10
+        }
+    },
+    {
+        rotation: {
+            y: -Math.PI / 3,
+            x: 0
+        },
+        scale: 3,
+        position: {
+            x: -40,
+            y: 0,
+            z: 10
+        }
+    },
+    {
+        rotation: {
+            x: -Math.PI / 3,
+        },
+        scale: 3,
+        position: {
+            x: 0,
+            y: 40,
+            z: -118
+        }
+    },
+    {
+        rotation: {
+            x: Math.PI / 3,
+        },
+        scale: 3,
+        position: {
+            x: 0,
+            y: -40,
+            z: -118
+        }
+    },
+    {
+        rotation: {
+            y: Math.PI / 3,
+            x: 0
+        },
+        scale: 3,
+        position: {
+            x: 40,
+            y: 0,
+            z: -118
+        }
+    },
+    {
+        rotation: {
+            y: -Math.PI / 3,
+            x: 0
+        },
+        scale: 3,
+        position: {
+            x: -40,
+            y: 0,
+            z: -118
+        }
+    }
+];
+export default planeMeshParameters;
 function init(audio: HTMLAudioElement, container: HTMLElement | Window = document.body) {
     const uniforms = {
         u_time: {
@@ -78,7 +179,8 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
     
             if(item.rotation.x == undefined) {
-                planeMesh.rotation.y = item.rotation.y;
+                if(item.rotation.y != undefined)
+                    planeMesh.rotation.y = item.rotation.y;
             } else {
                 planeMesh.rotation.x = item.rotation.x;
             }
