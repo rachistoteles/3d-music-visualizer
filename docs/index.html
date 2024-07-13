@@ -26,14 +26,34 @@
 
 <body>
 <div class = "player">
-  <audio id="audio" src="smokeandmirrors.mp3" controls></audio>
+  <audio id="audio" src="FarAwayNevertel.mp3" controls></audio>
 </div>
 
-<script src="index.js"></script>
+<script src="./index.js"></script>
 <script>
   
   MusicVisualizer.init(document.getElementById("audio"), window, true);
   
+</script>
+<script>
+  document.getElementById('load-button').addEventListener('click', function() {
+      var fileInput = document.getElementById('file-input');
+      var fileInputContainer = document.getElementById('file-input-container');
+      var audioLeft = document.getElementById('audio-left');
+
+      if (fileInput.files.length > 0) {
+          var file = fileInput.files[0];
+          var fileURL = URL.createObjectURL(file);
+
+          audioLeft.src = fileURL;
+      
+
+          MusicVisualizer.init(document.getElementById("audio"), window, true);
+
+          // Hide the file input and button
+          fileInputContainer.style.display = 'none';
+      }
+  });
 </script>
 </body>
 </html>

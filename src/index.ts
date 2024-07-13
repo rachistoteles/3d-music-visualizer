@@ -1,109 +1,10 @@
 import * as THREE from "three";
 import shaders from "./shaders";
+import OrbitControls from "three-orbitcontrols";
+import planeMeshParameters from "./planeMeshParameters";
 
+// Other code remains the same
 
-type PlaneMeshParameters = {
-    rotation: { x?: number , y?: number, z?: number },
-    scale: number,
-    position: { x: number, y: number, z: number }
-};
-
-const planeMeshParameters: PlaneMeshParameters[] = [
-    {
-        rotation: {
-            x: -Math.PI / 3,
-        },
-        scale: 3,
-        position: {
-            x: 0,
-            y: 40,
-            z: 10
-        }
-    },
-    // ... other objects as previously defined
-    {
-        rotation: {
-            x: Math.PI / 3,
-        },
-        scale: 3,
-        position: {
-            x: 0,
-            y: -40,
-            z: 10
-        }
-    },
-    {
-        rotation: {
-            y: Math.PI / 3,
-            x: 0
-        },
-        scale: 3,
-        position: {
-            x: 40,
-            y: 0,
-            z: 10
-        }
-    },
-    {
-        rotation: {
-            y: -Math.PI / 3,
-            x: 0
-        },
-        scale: 3,
-        position: {
-            x: -40,
-            y: 0,
-            z: 10
-        }
-    },
-    {
-        rotation: {
-            x: -Math.PI / 3,
-        },
-        scale: 3,
-        position: {
-            x: 0,
-            y: 40,
-            z: -118
-        }
-    },
-    {
-        rotation: {
-            x: Math.PI / 3,
-        },
-        scale: 3,
-        position: {
-            x: 0,
-            y: -40,
-            z: -118
-        }
-    },
-    {
-        rotation: {
-            y: Math.PI / 3,
-            x: 0
-        },
-        scale: 3,
-        position: {
-            x: 40,
-            y: 0,
-            z: -118
-        }
-    },
-    {
-        rotation: {
-            y: -Math.PI / 3,
-            x: 0
-        },
-        scale: 3,
-        position: {
-            x: -40,
-            y: 0,
-            z: -118
-        }
-    }
-];
-export default planeMeshParameters;
 function init(audio: HTMLAudioElement, container: HTMLElement | Window = document.body) {
     const uniforms = {
         u_time: {
@@ -118,19 +19,21 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             type: "float[64]",
             value: new Uint8Array(),
         },
+        u_color: {
+            type: "v3",
+            value: new THREE.Color(0xffffff),
+        },
     };
 
     const audioContext = new window.AudioContext();
-
     const source = audioContext.createMediaElementSource(audio);
     const analyser = audioContext.createAnalyser();
     source.connect(analyser);
     analyser.connect(audioContext.destination);
     analyser.fftSize = 1024;
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    
-    _initThree();
 
+    _initThree();
 
     function _initThree() {
         const isWindow = container instanceof Window;
@@ -139,15 +42,14 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         const height = isWindow ? window.innerHeight : container.clientHeight;
         const scene = new THREE.Scene();
 
-    
         const ambientLight = new THREE.AmbientLight(0xaaaaaa);
         ambientLight.castShadow = false;
-    
-        const spotLight = new THREE.SpotLight(0xffffff, );
+
+        const spotLight = new THREE.SpotLight(0xffffff);
         spotLight.intensity = 0.9;
         spotLight.position.set(-10, 40, 20);
         spotLight.castShadow = true;
-    
+
         const camera = new THREE.PerspectiveCamera(
             85,
             width / height,
@@ -155,15 +57,17 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             1000
         );
         camera.position.z = 80;
-    
+
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(width, height);
         renderer.setClearAlpha(0);
-    
+
         const canvas = renderer.domElement;
         canvas.style.opacity = "1";
         canvas.style.transition = "opacity 0.4s";
         _container.appendChild(canvas);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
 
         const planeGeometry = new THREE.PlaneGeometry(64, 64, 64, 64);
         const planeMaterial = new THREE.ShaderMaterial({
@@ -172,41 +76,45 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             uniforms: uniforms,
             wireframe: true
         });
-    
+
         let planeMeshArray = [];
-    
+
         planeMeshParameters.forEach(item => {
             const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-    
-            if(item.rotation.x == undefined) {
-                if(item.rotation.y != undefined)
+
+            if (item.rotation.x == undefined) {
+                if (item.rotation.y != undefined)
                     planeMesh.rotation.y = item.rotation.y;
             } else {
                 planeMesh.rotation.x = item.rotation.x;
             }
-    
+
             planeMesh.scale.x = item.scale;
             planeMesh.scale.y = item.scale;
             planeMesh.scale.z = item.scale;
             planeMesh.position.x = item.position.x;
             planeMesh.position.y = item.position.y;
             planeMesh.position.z = item.position.z;
-    
+
             planeMeshArray.push(planeMesh)
             scene.add(planeMesh);
         });
-    
+
         scene.add(ambientLight);
         scene.add(spotLight);
-    
 
         const render = () => {
             analyser.getByteFrequencyData(dataArray);
             uniforms.u_data_arr.value = dataArray;
-            camera.rotation.z += 0.001;
+
+            // Set a random color based on frequency data
+            const averageFreq = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+            const color = new THREE.Color(`hsl(${Math.random() * 360}, 100%, ${Math.min(100, averageFreq / 2)}%)`);
+            uniforms.u_color.value = color;
+
+            controls.update(); // Update controls
             renderer.render(scene, camera);
         }
-
 
         let idRequestAnimationFrame = 0;
         let idTimeout: NodeJS.Timeout;
@@ -214,6 +122,7 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             idRequestAnimationFrame = requestAnimationFrame(animate);
             render();
         }
+
         audio.addEventListener("play", () => {
             canvas.style.opacity = "1";
             clearTimeout(idTimeout);
@@ -224,15 +133,13 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             canvas.style.opacity = "0";
             idTimeout = setTimeout(() => cancelAnimationFrame(idRequestAnimationFrame), 400);
         });
+
         window.addEventListener("resize", () => {
             const width = isWindow ? window.innerWidth : container.clientWidth;
             const height = isWindow ? window.innerHeight : container.clientHeight;
-            console.log(width, height);
             renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            canvas.width = width;
-            canvas.height = height;
         });
     }
 }
