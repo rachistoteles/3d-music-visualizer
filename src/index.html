@@ -4,19 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>3D Music Visualizer</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
+    body {
+      overflow: hidden;
+      background-color: black;
+      margin: 0px;
     }
-
     .player {
       position: absolute;
       bottom: 20px;
       right: 20px;
       z-index: 1;
     }
-
     .controls {
       position: absolute;
       top: 20px;
@@ -26,30 +26,84 @@
       padding: 10px;
       border-radius: 5px;
     }
-
-    body {
-      overflow: hidden;
-      background-color: black;
-      margin: 0px;
-    }
   </style>
 </head>
 
 <body>
   <div class="controls">
-    <input type="file" id="audioFile" accept="audio/*">
-    <label for="backgroundColor">Include Background Color:</label>
-    <select id="backgroundColor">
-      <option value="true">Yes</option>
-      <option value="false">No</option>
-    </select>
-    <button id="startButton">Start Visualizer</button>
-    <button class="print-button" id="print-button">Print Camera Info</button>
+    <div class="form-group">
+      <label for="audioFile">Select Audio File:</label>
+      <input type="file" class="form-control-file" id="audioFile" accept="audio/*">
+    </div>
+    <div class="form-group">
+      <label for="backgroundColor">Include Background Color:</label>
+      <select class="form-control" id="backgroundColor">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="numModels">Number of Models:</label>
+      <select class="form-control" id="numModels">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+        <option value="17">17</option>
+        <option value="18">18</option>
+        <option value="19">19</option>
+        <option value="20">20</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="distanceBetween">Distance Between Models:</label>
+      <input type="number" class="form-control" id="distanceBetween" value="10" step="0.1">
+    </div>
+    <div class="form-group">
+      <label for="rotationSpeedOdd">Rotation Speed (Odd Models):</label>
+      <input type="number" class="form-control" id="rotationSpeedOdd" value="1.2" step="0.1">
+    </div>
+    <div class="form-group">
+      <label for="rotationSpeedEven">Rotation Speed (Even Models):</label>
+      <input type="number" class="form-control" id="rotationSpeedEven" value="1.8" step="0.1">
+    </div>
+    <div class="form-group">
+      <label for="presets">Presets:</label>
+      <select class="form-control" id="presets">
+        <option value="default">Select a preset</option>
+        <option value="preset1">Preset 1</option>
+        <option value="preset2">Preset 2</option>
+        <option value="preset3">Preset 3</option>
+        <option value="preset4">Preset 4</option>
+        <option value="preset5">Preset 5</option>
+        <option value="preset6">Preset 6</option>
+        <option value="preset7">Preset 7</option>
+        <option value="preset8">Preset 8</option>
+      </select>
+      
+    </div>
+    <button class="btn btn-primary btn-block" id="startButton">Start Visualizer</button>
+    <button class="btn btn-secondary btn-block" id="print-button">Print Camera Info</button>
   </div>
   <div class="player">
     <audio id="audio" controls></audio>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="index.js"></script>
   <script>
     window.addEventListener("load", () => {
@@ -57,15 +111,94 @@
       const fileInput = document.getElementById("audioFile");
       const startButton = document.getElementById("startButton");
       const backgroundColorSelect = document.getElementById("backgroundColor");
+      const numModelsSelect = document.getElementById("numModels");
+      const distanceBetweenInput = document.getElementById("distanceBetween");
+      const rotationSpeedOddInput = document.getElementById("rotationSpeedOdd");
+      const rotationSpeedEvenInput = document.getElementById("rotationSpeedEven");
+      const presetsSelect = document.getElementById("presets");
+
+      const presets = {
+  preset1: {
+    numModels: 2,
+    distanceBetween: 10,
+    rotationSpeedOdd: 1.2,
+    rotationSpeedEven: 1.4
+  },
+  preset2: {
+    numModels: 3,
+    distanceBetween: 80,
+    rotationSpeedOdd: 1.6,
+    rotationSpeedEven: 1.1
+  },
+  preset3: {
+    numModels: 5,
+    distanceBetween: 60,
+    rotationSpeedOdd: 2,
+    rotationSpeedEven: 1.4
+  },
+  preset4: {
+    numModels: 4,
+    distanceBetween: 50,
+    rotationSpeedOdd: 1.5,
+    rotationSpeedEven: 1.7
+  },
+  preset5: {
+    numModels: 6,
+    distanceBetween: 30,
+    rotationSpeedOdd: 1.8,
+    rotationSpeedEven: 1.3
+  },
+  preset6: {
+    numModels: 8,
+    distanceBetween: 70,
+    rotationSpeedOdd: 2.1,
+    rotationSpeedEven: 1.9
+  },
+  preset7: {
+    numModels: 10,
+    distanceBetween: 40,
+    rotationSpeedOdd: 1.9,
+    rotationSpeedEven: 1.5
+  },
+  preset8: {
+    numModels: 12,
+    distanceBetween: 20,
+    rotationSpeedOdd: 2.3,
+    rotationSpeedEven: 2.0
+  }
+};
+
+      presetsSelect.addEventListener("change", () => {
+        const selectedPreset = presets[presetsSelect.value];
+        if (selectedPreset) {
+          numModelsSelect.value = selectedPreset.numModels;
+          distanceBetweenInput.value = selectedPreset.distanceBetween;
+          rotationSpeedOddInput.value = selectedPreset.rotationSpeedOdd;
+          rotationSpeedEvenInput.value = selectedPreset.rotationSpeedEven;
+        }
+      });
 
       startButton.addEventListener("click", () => {
         const file = fileInput.files[0];
         const includeBackgroundColor = backgroundColorSelect.value === "true";
+        const numModels = parseInt(numModelsSelect.value, 10);
+        const distanceBetween = parseFloat(distanceBetweenInput.value);
+        const rotationSpeedOdd = parseFloat(rotationSpeedOddInput.value);
+        const rotationSpeedEven = parseFloat(rotationSpeedEvenInput.value);
+
         if (file) {
           const fileURL = URL.createObjectURL(file);
           audioElement.src = fileURL;
           audioElement.play();
-          MusicVisualizer.init(audioElement, window, includeBackgroundColor);
+          MusicVisualizer.init(
+            audioElement,
+            window,
+            includeBackgroundColor,
+            numModels,
+            distanceBetween,
+            rotationSpeedOdd,
+            rotationSpeedEven
+          );
         }
       });
     });
