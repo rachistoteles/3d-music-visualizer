@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>3D Music Visualizer</title>
   <style>
-    *{
+    * {
       margin: 0;
       padding: 0;
     }
 
-    .player{
+    .player {
       position: absolute;
       bottom: 20px;
       right: 20px;
       z-index: 1;
     }
+
     body {
       overflow: hidden;
       background-color: black;
@@ -25,15 +26,15 @@
 </head>
 
 <body>
-<div class = "player">
-  <audio id="audio" src="smokeandmirrors.mp3" controls></audio>
-</div>
+  <div class="player">
+    <audio id="audio" src="./media/bowdowniprevail.mp3" controls></audio>
+  </div>
 
-<script src="index.js"></script>
-<script>
-  
-  MusicVisualizer.init(document.getElementById("audio"), window, true);
-  
-</script>
+  <script src="index.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      MusicVisualizer.init(document.getElementById("audio"), window);
+    });
+  </script>
 </body>
 </html>

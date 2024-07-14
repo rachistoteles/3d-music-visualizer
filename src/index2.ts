@@ -1,10 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import shaders from "./shaders";
-import { createPlanes } from "./models/createPlanes";
-import { createSpheres } from "./models/createSpheres";
-import { createPolyhedrons } from "./models/createPolyhedrons";
+import planeMeshParameters from "./planeMeshParameters";
+import sphereParameters from "./sphereParameters";
+
 
 function init(audio: HTMLAudioElement, container: HTMLElement | Window = document.body) {
     const uniforms = {
@@ -22,7 +21,7 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         },
         u_color: {
             type: "v3",
-            value: new THREE.Color( 0xadd8e6),
+            value: new THREE.Color(0xffffff),
         },
     };
 
@@ -43,12 +42,11 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         const height = isWindow ? window.innerHeight : container.clientHeight;
         const scene = new THREE.Scene();
 
-        const ambientLight = new THREE.AmbientLight(0xadd8e6); // Light Blue
-
+        const ambientLight = new THREE.AmbientLight(0xaaaaaa);
         ambientLight.castShadow = false;
 
-        const spotLight = new THREE.SpotLight(0xadd8e6);
-        spotLight.intensity = 0.6;
+        const spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.intensity = 0.9;
         spotLight.position.set(-10, 40, 20);
         spotLight.castShadow = true;
 
@@ -72,25 +70,37 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.zoomSpeed = 1.2;
 
-        const planeGroup = createPlanes(uniforms);
-        const polyhedronGroup = createPolyhedrons(uniforms);
-        scene.add(polyhedronGroup);
-        scene.add(planeGroup);
+        const planeGeometry = new THREE.PlaneGeometry(64, 64, 64, 64);
+        const planeMaterial = new THREE.ShaderMaterial({
+            vertexShader: shaders.vertex,
+            fragmentShader: shaders.fragment,
+            uniforms: uniforms,
+            wireframe: true
+        });
 
-        // const loader = new GLTFLoader();
-        // loader.load(
-        //     'C:/Users/racha/OneDrive/Desktop/neo_spiderman_with_new_costume_design/scene.gltf',
-        //     (gltf) => {
-        //         scene.add(gltf.scene);
-        //     },
-        //     (xhr) => {
-        //         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        //     },
-        //     (error) => {
-        //         console.error('An error happened', error);
-        //     }
-        // );
+        const planeGroup = new THREE.Object3D(); // Create a group to hold the planes
 
+        planeMeshParameters.forEach(item => {
+            const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+
+            if (item.rotation.x == undefined) {
+                if (item.rotation.y != undefined)
+                    planeMesh.rotation.y = item.rotation.y;
+            } else {
+                planeMesh.rotation.x = item.rotation.x;
+            }
+
+            planeMesh.scale.x = item.scale;
+            planeMesh.scale.y = item.scale;
+            planeMesh.scale.z = item.scale;
+            planeMesh.position.x = item.position.x;
+            planeMesh.position.y = item.position.y;
+            planeMesh.position.z = item.position.z;
+
+            planeGroup.add(planeMesh); // Add the plane to the group
+        });
+
+        scene.add(planeGroup); // Add the group to the scene
         scene.add(ambientLight);
         scene.add(spotLight);
 
@@ -98,11 +108,12 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             analyser.getByteFrequencyData(dataArray);
             uniforms.u_data_arr.value = dataArray;
 
-            const averageFreq = dataArray.reduce((sum, value) => sum + value, 0) / 7;
-            const color = new THREE.Color(`hsl(${Math.random() * 180}, 100%, ${Math.min(100, averageFreq / 2)}%)`);
+            // Set a random color based on frequency data
+            const averageFreq = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+            const color = new THREE.Color(`hsl(${Math.random() * 360}, 100%, ${Math.min(100, averageFreq / 2)}%)`);
             uniforms.u_color.value = color;
 
-            controls.update();
+            controls.update(); // Update controls
             renderer.render(scene, camera);
         }
 
@@ -131,9 +142,7 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
         });
-
         const panSpeed = 10;
-
         window.addEventListener('keydown', (event) => {
             switch (event.key) {
                 case 'ArrowLeft':
