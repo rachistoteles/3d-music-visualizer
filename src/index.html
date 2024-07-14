@@ -43,8 +43,15 @@
       </select>
     </div>
     <div class="form-group">
+      <label for="inOrderObjects">In order objects</label>
+      <select class="form-control" id="inOrderObjects">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label for="numModels">Number of Models:</label>
-      <select class="form-control" id="numModels">
+      <select class="form-control" id="numModels" >
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
@@ -61,7 +68,7 @@
         <option value="14">14</option>
         <option value="15">15</option>
         <option value="16">16</option>
-        <option value="17">17</option>
+        <option selected value="17">17</option>
         <option value="18">18</option>
         <option value="19">19</option>
         <option value="20">20</option>
@@ -69,7 +76,7 @@
     </div>
     <div class="form-group">
       <label for="distanceBetween">Distance Between Models:</label>
-      <input type="number" class="form-control" id="distanceBetween" value="10" step="0.1">
+      <input type="number" class="form-control" id="distanceBetween" value="4" step="0.1">
     </div>
     <div class="form-group">
       <label for="rotationSpeedOdd">Rotation Speed (Odd Models):</label>
@@ -116,6 +123,7 @@
       const rotationSpeedOddInput = document.getElementById("rotationSpeedOdd");
       const rotationSpeedEvenInput = document.getElementById("rotationSpeedEven");
       const presetsSelect = document.getElementById("presets");
+      const inOrderObjectsSelect = document.getElementById("inOrderObjects");
 
       const presets = {
   preset1: {
@@ -197,7 +205,8 @@
             numModels,
             distanceBetween,
             rotationSpeedOdd,
-            rotationSpeedEven
+            rotationSpeedEven,
+            inOrderObjectsSelect
           );
         }
       });

@@ -17,7 +17,8 @@ function init(
   numModels: number,
   distanceBetween: number,
   rotationSpeedOdd: number,
-  rotationSpeedEven: number
+  rotationSpeedEven: number,
+  inOrderObjects: boolean
 ) {
   const uniforms = {
     u_time: { type: "f", value: 2.0 },
@@ -83,7 +84,7 @@ function init(
     scene.add(spotLight);
 
     // Load the models with parameters and store them for updates
-    let gltfModels: { model: THREE.Group; speed: number; name: string }[] = [];
+    let gltfModels: { model: THREE.Group; speed: number; name: string; scale:number }[] = [];
 
     const modelPaths = [
       "./models/sasuke/scene.gltf",
@@ -91,133 +92,142 @@ function init(
       "./models/spiderman/scene.gltf",
       "./models/tobi/scene.gltf",
     ];
-    const addGltfModel = (model: THREE.Group, speed: number, name: string) =>
-      gltfModels.push({ model, speed, name });
-    for (let i = 1; i <= numModels; i++) {
-      // Adjust the loop to start at i = 1
-      const speed = i % 2 === 0 ? rotationSpeedEven : rotationSpeedOdd;
-      const modelPath = modelPaths[(i - 1) % modelPaths.length];
-      const modelName = modelPath.split("/").slice(-2, -1)[0]; // Extract the folder name
-      console.log(modelName); // Debugging output
+    const addGltfModel = (model: THREE.Group, speed: number, name: string, scale:number) =>
+      gltfModels.push({ model, speed, name, scale });
+    let inOrderObjects = true;
+    if (inOrderObjects) {
+      for (let i = 1; i <= numModels; i++) {
+        // Adjust the loop to start at i = 1
+        const speed = i % 2 === 0 ? rotationSpeedEven : rotationSpeedOdd;
+        const modelPath = modelPaths[(i - 1) % modelPaths.length];
+        const modelName = modelPath.split("/").slice(-2, -1)[0]; // Extract the folder name
+        console.log(modelName); // Debugging output
 
-      // Set size based on model name
-      let size;
-      let position;
-      switch (modelName) {
-        case "sasuke":
-          size = 0.02;
-          position =
-            i % 2 === 0
-              ? new THREE.Vector3(
-                  0,
-                  Math.ceil(i / numModels) ,
-                  (distanceBetween * -2 * i) / numModels
-                ) // Even index -> y and z-axis
-              : new THREE.Vector3(
-                  (-distanceBetween * 2 * i) / numModels,
-                  0,
-                  Math.ceil(i / numModels)
-                ); // Odd index -> x and z-axis
-          break;
-        case "tobi":
-          size = 0.4;
-          position =
-            i % 2 === 0
-              ? new THREE.Vector3(
-                 (-distanceBetween * 2 * i) / numModels,
-                  0,
-                  Math.ceil(i / numModels)
-                ) // Position next to Sasuke
-              : new THREE.Vector3(
-                0,  
-                -(distanceBetween * 2 * i) / numModels,
-                  
-                  Math.ceil(i / numModels)
-                ); // Position next to Sasuke
-          break;
-        case "naruto":
-          size = 1.3;
-          position =
-            i % 2 === 0
-              ? new THREE.Vector3(
-              
-                  -(distanceBetween * -2 * i) / numModels,0,
-                  Math.ceil(i / numModels)
-                ) // Position next to Sasuke
-              : new THREE.Vector3(
-                0,
-                  -(distanceBetween * 2 * i) / numModels,
-               
-                  Math.ceil(i / numModels)
-                ); // Position next to Sasuke
-          break;
-        case "spiderman":
-          size = 1.4;
-          position =
-            i % 2 === 0
-              ? new THREE.Vector3(
-                 -(-distanceBetween * 2 * i) / numModels,
-                  0,
-                  Math.ceil(i / numModels)
-                ) // Position next to Sasuke
-              : new THREE.Vector3(
-               - (distanceBetween * -2 * i) / numModels,  
-                0,
-                  
-                  Math.ceil(i / numModels)
-                ); // Position next to Sasuke
-          break;
-        default:
-          size = 1; // Default size
-          position = new THREE.Vector3(0, 0, 0); // Default position if needed
-          break;
+        // Set size based on model name
+        let size =1;
+        let position;
+        switch (modelName) {
+          case "sasuke":
+            size = 0.0022;
+            position =
+              i % 2 === 0
+                ? new THREE.Vector3(
+                    0,
+                    Math.ceil(i / numModels),
+                    (distanceBetween * -2 * i) / numModels
+                  ) // Even index -> y and z-axis
+                : new THREE.Vector3(
+                    (-distanceBetween * 2 * i) / numModels,
+                    0,
+                    Math.ceil(i / numModels)
+                  ); // Odd index -> x and z-axis
+            break;
+          case "tobi":
+            size = 1.5;
+            position =
+              i % 2 === 0
+                ? new THREE.Vector3(
+                    (-distanceBetween * 2 * i) / numModels,
+                    0,
+                    Math.ceil(i / numModels)
+                  ) // Position next to Sasuke
+                : new THREE.Vector3(
+                    0,
+                    -(distanceBetween * 2 * i) / numModels,
+
+                    Math.ceil(i / numModels)
+                  ); // Position next to Sasuke
+            break;
+          case "naruto":
+            size = 1.3;
+            position =
+              i % 2 === 0
+                ? new THREE.Vector3(
+                    -(distanceBetween * -2 * i) / numModels,
+                    0,
+                    Math.ceil(i / numModels)
+                  ) // Position next to Sasuke
+                : new THREE.Vector3(
+                    0,
+                    -(distanceBetween * 2 * i) / numModels,
+
+                    Math.ceil(i / numModels)
+                  ); // Position next to Sasuke
+            break;
+          case "spiderman":
+            size = 1.4;
+            position =
+              i % 2 === 0
+                ? new THREE.Vector3(
+                    -(-distanceBetween * 2 * i) / numModels,
+                    0,
+                    Math.ceil(i / numModels)
+                  ) // Position next to Sasuke
+                : new THREE.Vector3(
+                    -(distanceBetween * -2 * i) / numModels,
+                    0,
+
+                    Math.ceil(i / numModels)
+                  ); // Position next to Sasuke
+            break;
+          default:
+            size = 1; // Default size
+            position = new THREE.Vector3(0, 0, 0); // Default position if needed
+            break;
+        }
+
+        loadModel(
+          scene,
+          modelPath,
+          {
+            name: modelName,
+            position: position,
+            rotation: new THREE.Euler(0, 0, 0),
+            scale: new THREE.Vector3(size, size, size),
+            speed: speed,
+            size: size,
+          },
+          (model, name) => addGltfModel(model, speed, name, size)
+        );
       }
+    } else {
+      for (let i = 1; i <= numModels; i++) {
+        // Adjust the loop to start at i = 1
+        const speed = i % 2 === 0 ? rotationSpeedEven : rotationSpeedOdd;
+        const modelPath = modelPaths[(i - 1) % modelPaths.length];
+        const modelName = modelPath.split("/").slice(-2, -1)[0]; // Extract the folder name
+        console.log(modelName); // Debugging output
 
-      // Set position based on model name and index parity
+        // Set size and position based on index
+        let size=1;
+        let position;
 
-      // if (i*10 === 10) {
-      //     position = new THREE.Vector3(
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween
-      //     );
-      // } else if (modelName === 'tobi') {
-      //     position = new THREE.Vector3(
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween
-      //     );
-      // } else if (modelName === 'naruto') {
-      //     position = new THREE.Vector3(
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween
-      //     );
-      // } else if (modelName === 'spiderman') {
-      //     position = new THREE.Vector3(
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween,
-      //         10* (i+1) * distanceBetween);
-      // } else {
-      //     // Default position based on index parity
-      //     position = (i % 2 === 0)
-      //         ? new THREE.Vector3(0, distanceBetween * Math.ceil(i * i * i / numModels), distanceBetween * Math.ceil(i * i * i / numModels)) // Even index -> y and z-axis
-      //         : new THREE.Vector3(distanceBetween * Math.ceil(i * i * i / numModels), 0, distanceBetween * Math.ceil(i * i * i / numModels)); // Odd index -> x and z-axis
-      // }
+        // Sizes based on the model
+        const sizes = [0.0022, 0.15, 1.3, 1.4];
 
-      loadModel(
-        scene,
-        modelPath,
-        {
-          name: modelName,
-          position: position,
-          rotation: new THREE.Euler(0, 0, 0),
-          scale: new THREE.Vector3(size, size, size),
-          speed: speed,
-          size: size,
-        },
-        (model, name) => addGltfModel(model, speed, name)
-      );
+        // Calculate size and position
+        size = sizes[(i - 1) % sizes.length];
+        position =
+        new THREE.Vector3(
+            0,
+            Math.ceil(i / numModels),
+            (distanceBetween * 2 * i) / numModels
+          ) // Even index -> y and z-axis
+
+        loadModel(
+          scene,
+          modelPath,
+          {
+            name: modelName,
+            position: position,
+            rotation: new THREE.Euler(0, 0, 0),
+            scale: new THREE.Vector3(size, size, size),
+            speed: speed,
+            size: size,
+          },
+          (model, name) => addGltfModel(model, speed, name, size)
+        );
+      }
     }
     createCameraGUI(camera, controls, 15); // Create the camera GUI
 
@@ -236,10 +246,10 @@ function init(
       uniforms.u_color.value = color;
 
       // Update GLTF models
-      gltfModels.forEach(({ model, speed }) => {
+      gltfModels.forEach(({ model, speed, scale }) => {
         const deltaPosition = averageFreq / 1000 - 0.05; // Calculate position change
 
-        // updateModelPosition(model, averageFreq, deltaPosition);
+         updateModelPosition(model, averageFreq, deltaPosition*scale);
         updateModelRotation(model, averageFreq, speed);
         //  updateCameraPosition(camera, averageFreq/4);
         if (includeBackgroundColor) updateBackgroundColor(scene, averageFreq);
