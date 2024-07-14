@@ -22,7 +22,7 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         },
         u_color: {
             type: "v3",
-            value: new THREE.Color( 0xadd8e6),
+            value: new THREE.Color( 0xffffff),
         },
     };
 
@@ -43,11 +43,11 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
         const height = isWindow ? window.innerHeight : container.clientHeight;
         const scene = new THREE.Scene();
 
-        const ambientLight = new THREE.AmbientLight(0xadd8e6); // Light Blue
+        const ambientLight = new THREE.AmbientLight(0x87ceeb); // Light Blue
 
         ambientLight.castShadow = false;
 
-        const spotLight = new THREE.SpotLight(0xadd8e6);
+        const spotLight = new THREE.SpotLight(0xffffff);
         spotLight.intensity = 0.6;
         spotLight.position.set(-10, 40, 20);
         spotLight.castShadow = true;
@@ -98,10 +98,12 @@ function init(audio: HTMLAudioElement, container: HTMLElement | Window = documen
             analyser.getByteFrequencyData(dataArray);
             uniforms.u_data_arr.value = dataArray;
 
-            const averageFreq = dataArray.reduce((sum, value) => sum + value, 0) / 7;
-            const color = new THREE.Color(`hsl(${Math.random() * 180}, 100%, ${Math.min(100, averageFreq / 2)}%)`);
+            const averageFreq = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+            const hue = Math.random() * 360; // Random hue value between 0 and 360
+            const saturation = 100; // Full saturation
+            const lightness = Math.min(50, (averageFreq / 255) * 100); // Scaled lightness between 0 and 50
+            const color = new THREE.Color(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
             uniforms.u_color.value = color;
-
             controls.update();
             renderer.render(scene, camera);
         }
