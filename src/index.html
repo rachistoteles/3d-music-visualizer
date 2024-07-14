@@ -17,6 +17,16 @@
       z-index: 1;
     }
 
+    .controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+    }
+
     body {
       overflow: hidden;
       background-color: black;
@@ -26,14 +36,38 @@
 </head>
 
 <body>
+  <div class="controls">
+    <input type="file" id="audioFile" accept="audio/*">
+    <label for="backgroundColor">Include Background Color:</label>
+    <select id="backgroundColor">
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+    <button id="startButton">Start Visualizer</button>
+    <button class="print-button" id="print-button">Print Camera Info</button>
+  </div>
   <div class="player">
-    <audio id="audio" src="./media/bowdowniprevail.mp3" controls></audio>
+    <audio id="audio" controls></audio>
   </div>
 
   <script src="index.js"></script>
   <script>
     window.addEventListener("load", () => {
-      MusicVisualizer.init(document.getElementById("audio"), window);
+      const audioElement = document.getElementById("audio");
+      const fileInput = document.getElementById("audioFile");
+      const startButton = document.getElementById("startButton");
+      const backgroundColorSelect = document.getElementById("backgroundColor");
+
+      startButton.addEventListener("click", () => {
+        const file = fileInput.files[0];
+        const includeBackgroundColor = backgroundColorSelect.value === "true";
+        if (file) {
+          const fileURL = URL.createObjectURL(file);
+          audioElement.src = fileURL;
+          audioElement.play();
+          MusicVisualizer.init(audioElement, window, includeBackgroundColor);
+        }
+      });
     });
   </script>
 </body>
