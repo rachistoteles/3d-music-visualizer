@@ -33,7 +33,7 @@
 }
 
 .toggle-container {
-  position: absolute;
+  position:block;
   top: 5px;
   right: 8%;
   z-index: 2;
@@ -72,7 +72,7 @@
       <!-- Your form groups go here -->
       <div class="form-group">
         <label for="audioFile">Select Audio File:</label>
-        <input type="file" class="form-control-file" id="audioFile" accept="audio/*">
+        <input type="file" class="form-control-file" id="audioFile" accept="audio/*" src="./media/bowdowniprevail.mp3">
       </div>
       <div class="form-group">
         <label for="backgroundColor">Include Background Color:</label>
@@ -94,28 +94,21 @@
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
-          <option value="4">4</option>
+          <option selected value="4">4</option>
           <option value="5">5</option>
           <option value="6">6</option>
           <option value="7">7</option>
           <option value="8">8</option>
           <option value="9">9</option>
           <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-          <option value="14">14</option>
-          <option value="15">15</option>
-          <option value="16">16</option>
-          <option selected value="17">17</option>
-          <option value="18">18</option>
-          <option value="19">19</option>
-          <option value="20">20</option>
+          <option value="custom">Other</option>
         </select>
+        <input type="number" class="form-control mt-2" id="customNumModels" value="25" style="display: none;">
       </div>
+      
       <div class="form-group">
         <label for="distanceBetween">Distance Between Models:</label>
-        <input type="number" class="form-control" id="distanceBetween" value="4" step="0.1">
+        <input type="number" class="form-control" id="distanceBetween" value="8" step="0.1">
       </div>
       <div class="form-group">
         <label for="rotationSpeedOdd">Rotation Speed (Odd Models):</label>
@@ -144,12 +137,12 @@
         <select class="form-control" id="features">
           <option value="default">Select a preset</option>
           <option value="preset1">Moving Position</option>
-          <option value="preset2">Moving Rotation</option>
-          <option value="preset3">Preset 3</option>
-          <option value="preset4">Preset 4</option>
-          <option value="preset5">Preset 5</option>
-          <option value="preset6">Preset 6</option>
-          <option value="preset7">Preset 7</option>
+          <option selected value="preset2">Moving Rotation</option>
+          <option value="preset3">Inverted</option>
+          <option value="preset4">Translating</option>
+          <option value="preset5">Planes</option>
+          <option value="preset6">Spheres</option>
+          <option value="preset7">Polyhedron</option>
           <option value="preset8">Preset 8</option>
         </select>
       </div>
@@ -177,6 +170,7 @@
   const startButton = document.getElementById("startButton");
   const backgroundColorSelect = document.getElementById("backgroundColor");
   const numModelsSelect = document.getElementById("numModels");
+  const customNumModelsInput = document.getElementById("customNumModels");
   const distanceBetweenInput = document.getElementById("distanceBetween");
   const rotationSpeedOddInput = document.getElementById("rotationSpeedOdd");
   const rotationSpeedEvenInput = document.getElementById("rotationSpeedEven");
@@ -184,6 +178,7 @@
   const inOrderObjectsSelect = document.getElementById("inOrderObjects");
   const toggleButton = document.getElementById("toggleFormButton");
   const controlsContainer = document.querySelector(".controls-container");
+  const features = document.getElementById("features");
 
   const presets = {
     preset1: {
@@ -245,6 +240,13 @@
       rotationSpeedEvenInput.value = selectedPreset.rotationSpeedEven;
     }
   });
+  numModelsSelect.addEventListener("change", () => {
+    if (numModelsSelect.value === "custom") {
+      customNumModelsInput.style.display = "block";
+    } else {
+      customNumModelsInput.style.display = "none";
+    }
+  });
 
   toggleButton.addEventListener("click", () => {
     if (controlsContainer.style.display === "none") {
@@ -259,7 +261,7 @@
   startButton.addEventListener("click", () => {
     const file = fileInput.files[0];
     const includeBackgroundColor = backgroundColorSelect.value === "true";
-    const numModels = parseInt(numModelsSelect.value, 10);
+    const numModels = numModelsSelect.value === "custom" ? parseInt(customNumModelsInput.value, 10) : parseInt(numModelsSelect.value, 10);
     const distanceBetween = parseFloat(distanceBetweenInput.value);
     const rotationSpeedOdd = parseFloat(rotationSpeedOddInput.value);
     const rotationSpeedEven = parseFloat(rotationSpeedEvenInput.value);
@@ -276,10 +278,28 @@
         distanceBetween,
         rotationSpeedOdd,
         rotationSpeedEven,
-        inOrderObjectsSelect
+        inOrderObjectsSelect,
+        features
       );
 
       // Hide the form after starting the visualizer
+      controlsContainer.style.display = "none";
+      toggleButton.textContent = "Show Form";
+    } else {
+  
+      audioElement.src = "./media/bowdowniprevail.mp3";
+      audioElement.play();
+      MusicVisualizer.init(
+        audioElement,
+        window,
+        includeBackgroundColor,
+        numModels,
+        distanceBetween,
+        rotationSpeedOdd,
+        rotationSpeedEven,
+        inOrderObjectsSelect,
+        features
+      );
       controlsContainer.style.display = "none";
       toggleButton.textContent = "Show Form";
     }

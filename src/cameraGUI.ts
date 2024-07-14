@@ -90,41 +90,51 @@ export function createCameraGUI(camera: THREE.PerspectiveCamera, controls: Orbit
     window.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowLeft':
-                camera.position.x -= panSpeed;
+                camera.rotation.x -= panSpeed;
                 controls.target.x -= panSpeed;
+                camera.rotation.y -= panSpeed;
+                controls.target.y -= panSpeed;
                 break;
             case 'ArrowUp':
                 camera.position.y += panSpeed;
                 controls.target.y += panSpeed;
+                camera.rotation.x += panSpeed;
+                controls.target.x += panSpeed;
+            
                 break;
             case 'ArrowRight':
                 camera.position.x += panSpeed;
                 controls.target.x += panSpeed;
+                camera.rotation.y += panSpeed;
+                controls.target.y += panSpeed;
+
                 break;
             case 'ArrowDown':
                 camera.position.y -= panSpeed;
                 controls.target.y -= panSpeed;
+                camera.rotation.x -= panSpeed;
+                controls.target.x -= panSpeed;
                 break;
-            case '+':
+            case '1':
                 camera.position.z -= panSpeed;
                 break;
-            case '-':
+            case '0':
                 camera.position.z += panSpeed;
                 break;
-            case 'a':
-                camera.rotation.y -= THREE.MathUtils.degToRad(10); // Rotate left by 10 degrees
+            case '2':
+                camera.rotation.y -= panSpeed*30;// Rotate left by 10 degrees
                 break;
-            case 'd':
-                camera.rotation.y += THREE.MathUtils.degToRad(10); // Rotate right by 10 degrees
+            case '3':
+                camera.rotation.y += panSpeed*30;// Rotate right by 10 degrees
                 break;
-            case 'w':
-                camera.rotation.x -= THREE.MathUtils.degToRad(10); // Rotate up by 10 degrees
+            case '4':
+                camera.rotation.x -= panSpeed*30;// Rotate up by 10 degrees
                 break;
-            case 's':
-                camera.rotation.x += THREE.MathUtils.degToRad(10); // Rotate down by 10 degrees
+            case '5':
+                camera.rotation.x += panSpeed*30;// Rotate down by 10 degrees
                 break;
-            case 'r':
-                camera.rotation.y += THREE.MathUtils.degToRad(180); // Rotate 180 degrees
+            case '7':
+                camera.rotation.y += panSpeed*30;// Rotate 180 degrees
                 break;
         }
         limitCameraMovement();
