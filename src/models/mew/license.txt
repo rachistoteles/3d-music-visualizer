@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pokemon #151 Mew
+* source:	https://sketchfab.com/3d-models/pokemon-151-mew-7f37f239817f41a2ad21b5f77cd0ff65
+* author:	LadyIReyna (https://sketchfab.com/LadyIReyna)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pokemon #151 Mew" (https://sketchfab.com/3d-models/pokemon-151-mew-7f37f239817f41a2ad21b5f77cd0ff65) by LadyIReyna (https://sketchfab.com/LadyIReyna) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

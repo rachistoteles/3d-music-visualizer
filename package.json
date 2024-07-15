@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.9",
-    "three": "^0.139.2"
+    "three": "^0.128.0"
   }
 }

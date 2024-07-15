@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Tunnel Visualizer</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <input type="file" id="audioFile" accept="audio/*">
+    <audio id="audio" controls style="display:none;"></audio>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        window.addEventListener("load", () => {
+            const audioElement = document.getElementById("audio");
+            const fileInput = document.getElementById("audioFile");
+
+            fileInput.addEventListener("change", () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    const fileURL = URL.createObjectURL(file);
+                    audioElement.src = fileURL;
+                    audioElement.play();
+                    initVisualizer(audioElement);
+                }
+            });
+
+            function initVisualizer(audio) {
+                // Create a scene, camera, and renderer
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                // Create the tunnel (a series of rings)
+                const ringCount = 50;
+                const rings = [];
+                for (let i = 0; i < ringCount; i++) {
+                    const geometry = new THREE.TorusGeometry(5, 0.5, 16, 100);
+                    const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+                    const ring = new THREE.Mesh(geometry, material);
+                    ring.position.z = -i * 10;
+                    scene.add(ring);
+                    rings.push(ring);
+                }
+
+                // Position the camera
+                camera.position.z = 5;
+
+                // Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaElementSource(audio);
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                // Animation loop
+                function animate() {
+                    requestAnimationFrame(animate);
+
+                    // Get the frequency data
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // Update the rings based on frequency data
+                    rings.forEach((ring, i) => {
+                        ring.scale.x = 1 + dataArray[i] / 128.0;
+                        ring.scale.y = 1 + dataArray[i] / 128.0;
+                    });
+
+                    renderer.render(scene, camera);
+                }
+
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>

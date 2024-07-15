@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 
+
+
+// Example usage
+
 export function updateModelRotation(model: THREE.Group, averageFreq: number, speed: number) {
     if (averageFreq < 50) {
         model.rotation.y += (1.5 * averageFreq / 1000) * speed/2;

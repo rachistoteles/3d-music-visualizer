@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Path Visualizer</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <input type="file" id="audioFile" accept="audio/*">
+    <audio id="audio" controls style="display:none;"></audio>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        window.addEventListener("load", () => {
+            console.log("Window loaded");
+            const audioElement = document.getElementById("audio");
+            const fileInput = document.getElementById("audioFile");
+
+            fileInput.addEventListener("change", () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    const fileURL = URL.createObjectURL(file);
+                    audioElement.src = fileURL;
+                    audioElement.play();
+                    initVisualizer(audioElement);
+                }
+            });
+
+            function initVisualizer(audio) {
+                // Create a scene, camera, and renderer
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                // Create the path (a series of planes)
+                const pathCount = 100;
+                const paths = [];
+                const pathDistance = 10;
+
+                for (let i = 0; i < pathCount; i++) {
+                    const geometry = new THREE.PlaneGeometry(5, 5);
+                    const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, wireframe: true });
+                    const plane = new THREE.Mesh(geometry, material);
+                    plane.position.z = -i * pathDistance;
+                    scene.add(plane);
+                    paths.push(plane);
+                }
+
+                // Position the camera
+                camera.position.z = 5;
+
+                // Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaElementSource(audio);
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                // Set a frequency threshold
+                const frequencyThreshold = 100;
+                let rotationAngle = 0;
+
+                // Animation loop
+                function animate() {
+                    requestAnimationFrame(animate);
+
+                    // Get the frequency data
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // Determine if any frequency value exceeds the threshold
+                    const highFrequency = dataArray.some(value => value > frequencyThreshold);
+
+                    // Rotate the path if the frequency exceeds the threshold
+                    if (highFrequency) {
+                        rotationAngle += 0.01;
+                    }
+
+                    // Update the planes based on frequency data and rotation
+                    paths.forEach((plane, i) => {
+                        const scale = 1 + dataArray[i % dataArray.length] / 128.0;
+                        plane.scale.x = scale;
+                        plane.scale.y = scale;
+                        plane.rotation.z = rotationAngle;
+                    });
+
+                    renderer.render(scene, camera);
+                }
+
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>

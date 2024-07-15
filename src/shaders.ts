@@ -27,8 +27,8 @@ const shaders = {
         uniform float u_time;
         uniform float[64] u_data_arr;
         void main() {
-        gl_FragColor = vec4((u_data_arr[32])/255.0, 0, (u_data_arr[8])/255.0, 1.0);
-        // gl_FragColor = vec4((64.0 - abs(x)) / 32.0, (32.0 - abs(y)) / 32.0, (abs(x + y) / 2.0) / 32.0, 1.0);
+        //gl_FragColor = vec4((u_data_arr[32])/255.0, 0, (u_data_arr[8])/255.0, 1.0);
+         gl_FragColor = vec4((64.0 - abs(x)) / 32.0, (32.0 - abs(y)) / 32.0, (abs(x + y) / 2.0) / 32.0, 1.0);
         }
     `
 }

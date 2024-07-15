@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js GLTF Loader with Animations</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <input type="file" id="audioFile" accept="audio/*">
+    <audio id="audio" controls></audio>
+    <button id="startButton">Start</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    window.addEventListener("load", () => {
+        console.log("Window loaded");
+        const audioElement = document.getElementById("audio");
+        const fileInput = document.getElementById("audioFile");
+        const startButton = document.getElementById("startButton");
+
+        startButton.addEventListener("click", () => {
+            console.log("Start button clicked");
+            const file = fileInput.files[0];
+
+            async function analyzeAudioIntervals(fileURL, intervalSize = 100) {
+                console.log("Analyzing audio intervals for file URL:", fileURL);
+                const audioContext = new window.AudioContext();
+                console.log("Audio context created");
+
+                const response = await fetch(fileURL);
+                const arrayBuffer = await response.arrayBuffer();
+                console.log("Audio file fetched and array buffer created");
+
+                const buffer = await audioContext.decodeAudioData(arrayBuffer);
+                console.log("Audio buffer decoded");
+
+                const { length, sampleRate } = buffer;
+                console.log("Audio buffer length:", length, "Sample rate:", sampleRate);
+
+                const offlineAudioContext = new OfflineAudioContext({ length, sampleRate });
+                const audioBufferSourceNode = new AudioBufferSourceNode(offlineAudioContext, { buffer });
+                const analyserNode = new AnalyserNode(offlineAudioContext);
+
+                audioBufferSourceNode.connect(analyserNode);
+                audioBufferSourceNode.start();
+                console.log("Audio buffer source node connected and started");
+
+                const renderQuantumInSeconds = 128 / sampleRate;
+                const durationInSeconds = length / sampleRate;
+                const byteFrequencyData = new Uint8Array(analyserNode.frequencyBinCount);
+
+                let collectedData = [];
+                console.log("Render quantum in seconds:", renderQuantumInSeconds, "Duration in seconds:", durationInSeconds);
+
+                const analyze = async (index) => {
+                    const suspendTime = renderQuantumInSeconds * index;
+                    console.log("Analyzing at index:", index, "Suspend time:", suspendTime);
+
+                    if (suspendTime < durationInSeconds) {
+                        await offlineAudioContext.suspend(suspendTime);
+                        console.log("Offline audio context suspended at:", suspendTime);
+
+                        analyserNode.getByteFrequencyData(byteFrequencyData);
+                        collectedData.push([...byteFrequencyData]);
+                        console.log("Byte frequency data collected at index:", index, "Data length:", byteFrequencyData.length);
+
+                        await offlineAudioContext.resume();
+                        console.log("Offline audio context resumed at:", suspendTime);
+
+                        await analyze(index + 1);
+                    } else {
+                        console.log("Finished analyzing the entire song.");
+                    }
+                };
+
+                await analyze(1);
+                console.log("Audio analysis complete");
+
+                function countChangesInInterval(array, start, intervalSize) {
+                    let changes = 0;
+                    for (let i = start; i < start + intervalSize - 1 && i < array.length - 1; i++) {
+                        if (array[i] !== array[i + 1]) {
+                            changes++;
+                        }
+                    }
+                    return changes;
+                }
+
+                function findIntervalsWithMostChanges(dataArray, intervalSize) {
+                    let changesArray = [];
+                    for (let i = 0; i < dataArray.length - intervalSize; i += intervalSize) {
+                        let changes = countChangesInInterval(dataArray, i, intervalSize);
+                        changesArray.push({ start: i, changes: changes });
+                    }
+
+                    let maxChanges = Math.max(...changesArray.map(item => item.changes));
+                    let maxChangeIntervals = changesArray.filter(item => item.changes === maxChanges);
+
+                    return maxChangeIntervals;
+                }
+
+                const flattenedData = collectedData.flat();
+                const intervalsWithMostChanges = findIntervalsWithMostChanges(flattenedData, intervalSize);
+
+                console.log("Intervals with the most changes:", intervalsWithMostChanges);
+
+                return intervalsWithMostChanges;
+            }
+
+            const initializeVisualizer = (fileURL) => {
+                console.log("Initializing visualizer with file URL:", fileURL);
+                audioElement.src = fileURL;
+                audioElement.play();
+                // Here you can initialize your MusicVisualizer or other logic
+                console.log("Audio playback started");
+            };
+
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                console.log("File selected:", file.name);
+                analyzeAudioIntervals(fileURL, 100).then(intervals => {
+                    console.log("Analysis complete. Intervals with the most changes:", intervals);
+                    initializeVisualizer(fileURL);
+                });
+            } else {
+                console.log("No file selected");
+            }
+        });
+    });
+    </script>
+</body>
+</html>
